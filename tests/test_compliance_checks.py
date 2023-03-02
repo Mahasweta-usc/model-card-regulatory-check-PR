@@ -52,8 +52,6 @@ Some random info...
 
 ### Direct Use
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
-
 Here is some info about direct uses...
 
 ### Downstream Use [optional]
@@ -66,7 +64,7 @@ Here is some info about direct uses...
 
 <!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
 
-[More Information Needed]
+Here is some info about out-of-scope uses...
 
 ## Bias, Risks, and Limitations
 
@@ -114,8 +112,8 @@ Some random info...
     @pytest.mark.parametrize("check, card,check_passed,values", [
         (ModelProviderIdentityCheck(), "provider_identity_model_card", True, "Nima Boscarino"),
         (ModelProviderIdentityCheck(), "bad_provider_identity_model_card", False, None),
-        (IntendedPurposeCheck(), "intended_purpose_model_card", True, None),
-        (IntendedPurposeCheck(), "bad_intended_purpose_model_card", False, None),
+        (IntendedPurposeCheck(), "intended_purpose_model_card", True, ["Here is some info about direct uses...", None, "Here is some info about out-of-scope uses..."]),
+        (IntendedPurposeCheck(), "bad_intended_purpose_model_card", False, [None, None, None]),
     ])
     def test_run_model_provider_identity_check(self, check, card, check_passed, values, request):
         card = request.getfixturevalue(card)

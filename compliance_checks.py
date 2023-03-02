@@ -25,27 +25,37 @@ class ModelProviderIdentityCheck(ComplianceCheck):
             return False, None
 
 
-class IntendedPurposeCheck(ComplianceCheck):
-    def run_check(self, card: BeautifulSoup):
-        try:
-            direct_use = card.find("h3", string="Direct Use")
+def walk_to_next_heading(card, heading, heading_text):
+    try:
+        heading_node = card.find(heading, string=heading_text)
 
-            direct_use_content = ""
+        content = ""
 
-            sibling_gen = direct_use.nextSiblingGenerator()
+        sibling_gen = heading_node.nextSiblingGenerator()
+        sibling = next(sibling_gen)
+
+        while not (sibling.name is not None and sibling.name.startswith("h")) or sibling.name is None:
+            if not isinstance(sibling, Comment):
+                content = content + sibling.text.strip()
             sibling = next(sibling_gen)
 
-            while sibling.name != "h3":
-                if not isinstance(sibling, Comment):
-                    direct_use_content = direct_use_content + sibling.text
-                sibling = next(sibling_gen)
-
-            if direct_use_content.strip() == "[More Information Needed]":
-                return False, None
-
-            return True, None
-        except AttributeError:
+        if content.strip() == "[More Information Needed]":
             return False, None
+
+        return True, content
+    except AttributeError:
+        return False, None
+
+
+class IntendedPurposeCheck(ComplianceCheck):
+    def run_check(self, card: BeautifulSoup):
+        direct_use_check, direct_use_content = walk_to_next_heading(card, "h3", "Direct Use")
+        downstream_use_check, downstream_use_content = walk_to_next_heading(card, "h3", "Downstream Use [optional]")
+        out_of_scope_use_check, out_of_scope_use_content = walk_to_next_heading(card, "h3", "Out-of-Scope Use")
+        return (
+            direct_use_check and out_of_scope_use_check,
+            [direct_use_content, downstream_use_content, out_of_scope_use_content]
+        )
 
 
 class ComplianceSuite:
