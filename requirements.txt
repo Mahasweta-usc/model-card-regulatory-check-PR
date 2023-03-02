@@ -1,5 +1,7 @@
-fastapi
-uvicorn
-markdown
-beautifulsoup4
-tabulate
+# fastapi
+# uvicorn
+# markdown
+# beautifulsoup4
+# tabulate
+# pytest
+gradio
