@@ -3,7 +3,9 @@ title: Model Card Regulatory Check
 emoji: 📉
 colorFrom: indigo
 colorTo: blue
-sdk: docker
+sdk: gradio
+app_file: app.py
+sdk_version: 3.19.1
 pinned: false
 ---
 
