@@ -2,8 +2,23 @@ import pytest
 from unittest.mock import MagicMock
 
 import markdown
-from bs4 import BeautifulSoup, Comment
-from compliance_checks import ComplianceSuite, ModelProviderIdentityCheck, IntendedPurposeCheck
+from bs4 import BeautifulSoup
+from compliance_checks import (
+    ComplianceSuite,
+    ModelProviderIdentityCheck,
+    IntendedPurposeCheck,
+    GeneralLimitationsCheck,
+    ComputationalRequirementsCheck,
+)
+
+
+expected_infrastructure = """\
+Jean Zay Public Supercomputer, provided by the French government.\
+Hardware\
+384 A100 80GB GPUs (48 nodes)\
+Software\
+Megatron-DeepSpeed (Github link)\
+"""
 
 
 class TestComplianceCheck:
@@ -109,11 +124,92 @@ Some random info...
 [More Information Needed]
         """
 
+    @pytest.fixture
+    def general_limitations_model_card(self):
+        return """
+# Model Card for Sample Model
+
+## Some Random Header
+
+## Bias, Risks, and Limitations
+
+<!-- This section is meant to convey both technical and sociotechnical limitations. -->
+
+Hello world! These are some risks...
+
+## More Things
+        """
+
+    @pytest.fixture
+    def bad_general_limitations_model_card(self):
+        return """
+# Model Card for Sample Model
+
+## Some Random Header
+
+## Bias, Risks, and Limitations
+
+<!-- This section is meant to convey both technical and sociotechnical limitations. -->
+
+[More Information Needed]
+
+## More Things
+        """
+
+    @pytest.fixture
+    def computational_requirements_model_card(self):
+        # Adapted from: https://huggingface.co/bigscience/bloom/blob/main/README.md
+        return """
+# Model Card for Sample Model
+
+## Some Random Header
+
+## Technical Specifications
+
+### Compute infrastructure
+Jean Zay Public Supercomputer, provided by the French government.
+
+#### Hardware
+
+* 384 A100 80GB GPUs (48 nodes)
+
+#### Software
+
+* Megatron-DeepSpeed ([Github link](https://github.com/bigscience-workshop/Megatron-DeepSpeed))
+</details>
+
+## Intended Use
+
+Etc..
+"""
+
+    @pytest.fixture
+    def bad_computational_requirements_model_card(self):
+        # Adapted from: https://huggingface.co/bigscience/bloom/blob/main/README.md
+        return """
+# Model Card for Sample Model
+
+## Some Random Header
+
+## Technical Specifications
+
+### Compute infrastructure
+[More Information Needed]
+
+## Intended Use
+
+Etc..
+"""
+
     @pytest.mark.parametrize("check, card,check_passed,values", [
         (ModelProviderIdentityCheck(), "provider_identity_model_card", True, "Nima Boscarino"),
         (ModelProviderIdentityCheck(), "bad_provider_identity_model_card", False, None),
         (IntendedPurposeCheck(), "intended_purpose_model_card", True, ["Here is some info about direct uses...", None, "Here is some info about out-of-scope uses..."]),
         (IntendedPurposeCheck(), "bad_intended_purpose_model_card", False, [None, None, None]),
+        (GeneralLimitationsCheck(), "general_limitations_model_card", True, "Hello world! These are some risks..."),
+        (GeneralLimitationsCheck(), "bad_general_limitations_model_card", False, None),
+        (ComputationalRequirementsCheck(), "computational_requirements_model_card", True, expected_infrastructure),
+        (ComputationalRequirementsCheck(), "bad_computational_requirements_model_card", False, None),
     ])
     def test_run_model_provider_identity_check(self, check, card, check_passed, values, request):
         card = request.getfixturevalue(card)
@@ -175,7 +271,7 @@ class TestComplianceSuite:
 
 
 class TestEndToEnd:
-    @pytest.mark.parametrize("card", [
+    @pytest.mark.parametrize("card,fixture", [
         ("""
 # Model Card for Sample Model
 
@@ -187,12 +283,54 @@ Some random info...
 
 - **Developed by:** Nima Boscarino
 - **Model type:** Yada yada yada
-        """)
+
+## Uses
+
+### Direct Use
+
+Here is some info about direct uses...
+
+### Downstream Use [optional]
+
+[More Information Needed]
+
+### Out-of-Scope Use
+
+Here is some info about out-of-scope uses...
+
+## Bias, Risks, and Limitations
+
+Hello world! These are some risks...
+
+## Technical Specifications
+
+### Compute infrastructure
+Jean Zay Public Supercomputer, provided by the French government.
+
+#### Hardware
+
+* 384 A100 80GB GPUs (48 nodes)
+
+#### Software
+
+* Megatron-DeepSpeed ([Github link](https://github.com/bigscience-workshop/Megatron-DeepSpeed))
+</details>
+
+## More Things
+        """, False),
+        ("bloom_card", True)
     ])
-    def test_end_to_end_compliance_suite(self, card):
+    def test_end_to_end_compliance_suite(self, card, fixture, request):
+        if fixture:
+            card = request.getfixturevalue(card)
+
         suite = ComplianceSuite(checks=[
             ModelProviderIdentityCheck(),
             IntendedPurposeCheck(),
+            GeneralLimitationsCheck(),
+            ComputationalRequirementsCheck()
         ])
 
-        suite.run(card)
+        results = suite.run(card)
+
+        assert all([r[0] for r in results])
