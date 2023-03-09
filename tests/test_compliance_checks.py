@@ -5,10 +5,10 @@ import markdown
 from bs4 import BeautifulSoup
 from compliance_checks import (
     ComplianceSuite,
-    ModelProviderIdentityCheck,
-    IntendedPurposeCheck,
-    GeneralLimitationsCheck,
-    ComputationalRequirementsCheck,
+    ModelProviderIdentityCheck, ModelProviderIdentityResult,
+    IntendedPurposeCheck, IntendedPurposeResult,
+    GeneralLimitationsCheck, GeneralLimitationsResult,
+    ComputationalRequirementsCheck, ComputationalRequirementsResult,
 )
 
 
@@ -201,26 +201,39 @@ Etc..
 Etc..
 """
 
-    @pytest.mark.parametrize("check, card,check_passed,values", [
-        (ModelProviderIdentityCheck(), "provider_identity_model_card", True, "Nima Boscarino"),
-        (ModelProviderIdentityCheck(), "bad_provider_identity_model_card", False, None),
-        (IntendedPurposeCheck(), "intended_purpose_model_card", True, ["Here is some info about direct uses...", None, "Here is some info about out-of-scope uses..."]),
-        (IntendedPurposeCheck(), "bad_intended_purpose_model_card", False, [None, None, None]),
-        (GeneralLimitationsCheck(), "general_limitations_model_card", True, "Hello world! These are some risks..."),
-        (GeneralLimitationsCheck(), "bad_general_limitations_model_card", False, None),
-        (ComputationalRequirementsCheck(), "computational_requirements_model_card", True, expected_infrastructure),
-        (ComputationalRequirementsCheck(), "bad_computational_requirements_model_card", False, None),
+    @pytest.mark.parametrize("check,card,expected", [
+        (ModelProviderIdentityCheck(), "provider_identity_model_card", ModelProviderIdentityResult(
+            status=True,
+            provider="Nima Boscarino",
+        )),
+        (ModelProviderIdentityCheck(), "bad_provider_identity_model_card", ModelProviderIdentityResult()),
+        (IntendedPurposeCheck(), "intended_purpose_model_card", IntendedPurposeResult(
+            status=True,
+            direct_use="Here is some info about direct uses...",
+            downstream_use=None,
+            out_of_scope_use="Here is some info about out-of-scope uses...",
+        )),
+        (IntendedPurposeCheck(), "bad_intended_purpose_model_card", IntendedPurposeResult()),
+        (GeneralLimitationsCheck(), "general_limitations_model_card", GeneralLimitationsResult(
+            status=True,
+            limitations="Hello world! These are some risks..."
+        )),
+        (GeneralLimitationsCheck(), "bad_general_limitations_model_card", GeneralLimitationsResult()),
+        (ComputationalRequirementsCheck(), "computational_requirements_model_card", ComputationalRequirementsResult(
+            status=True,
+            requirements=expected_infrastructure,
+        )),
+        (ComputationalRequirementsCheck(), "bad_computational_requirements_model_card", ComputationalRequirementsResult()),
     ])
-    def test_run_model_provider_identity_check(self, check, card, check_passed, values, request):
+    def test_run_checks(self, check, card, expected, request):
         card = request.getfixturevalue(card)
 
         model_card_html = markdown.markdown(card)
         card_soup = BeautifulSoup(model_card_html, features="html.parser")
 
-        results_check_passed, results_values = check.run_check(card_soup)
+        results = check.run_check(card_soup)
 
-        assert results_check_passed == check_passed
-        assert results_values == values
+        assert results == expected
 
 
 class TestComplianceSuite:
@@ -333,4 +346,4 @@ Jean Zay Public Supercomputer, provided by the French government.
 
         results = suite.run(card)
 
-        assert all([r[0] for r in results])
+        assert all([r.status for r in results])

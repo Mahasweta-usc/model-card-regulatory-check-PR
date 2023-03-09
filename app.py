@@ -1,7 +1,9 @@
 import gradio as gr
+from huggingface_hub import ModelCard
 
 from compliance_checks import (
     ComplianceSuite,
+    ComplianceCheck,
     ModelProviderIdentityCheck,
     IntendedPurposeCheck,
     GeneralLimitationsCheck,
@@ -10,42 +12,83 @@ from compliance_checks import (
 
 from bloom_card import bloom_card
 
+checks = [
+    ModelProviderIdentityCheck(),
+    IntendedPurposeCheck(),
+    GeneralLimitationsCheck(),
+    ComputationalRequirementsCheck(),
+]
+suite = ComplianceSuite(checks=checks)
+
+
+def status_emoji(status: bool):
+    return "✅" if status else "🛑"
+
 
 def run_compliance_check(model_card: str):
-    suite = ComplianceSuite(checks=[
-        ModelProviderIdentityCheck(),
-        IntendedPurposeCheck(),
-        GeneralLimitationsCheck(),
-        ComputationalRequirementsCheck(),
-    ])
-
     results = suite.run(model_card)
 
-    return str([r[0] for r in results])
+    return [
+        *[gr.Accordion.update(label=f"{r.name} - {status_emoji(r.status)}") for r in results],
+        *[gr.Markdown.update(value=r.to_string()) for r in results],
+    ]
 
 
-with gr.Blocks() as demo:
+def fetch_and_run_compliance_check(model_id: str):
+    model_card = ModelCard.load(repo_id_or_path=model_id).content
+    return run_compliance_check(model_card=model_card)
+
+
+def compliance_result(compliance_check: ComplianceCheck):
+    accordion = gr.Accordion(label=f"{compliance_check.name}", open=False)
+    with accordion:
+        description = gr.Markdown("Run an evaluation to see results...")
+
+    return accordion, description
+
+
+with gr.Blocks(css="#reverse-row { flex-direction: row-reverse; }") as demo:
     gr.Markdown("""\
     # Model Card Validator
     Following Article 13 of the EU AI Act
     """)
 
-    with gr.Row():
-        with gr.Column():
-            model_card_box = gr.TextArea()
-            populate_sample = gr.Button(value="Populate Sample")
-            submit = gr.Button()
+    with gr.Row(elem_id="reverse-row"):
+        with gr.Tab(label="Results"):
+            with gr.Column():
+                compliance_results = [compliance_result(c) for c in suite.checks]
+                compliance_accordions = [c[0] for c in compliance_results]
+                compliance_descriptions = [c[1] for c in compliance_results]
 
         with gr.Column():
-            results_list = gr.Text()
+            with gr.Tab(label="Markdown"):
+                model_card_box = gr.TextArea()
+                populate_sample_card = gr.Button(value="Populate Sample")
+                submit_markdown = gr.Button()
+            with gr.Tab(label="Search for Model"):
+                model_id_search = gr.Text()
+                submit_model_search = gr.Button()
+                gr.Examples(
+                    examples=["society-ethics/model-card-webhook-test"],
+                    inputs=[model_id_search],
+                    outputs=[*compliance_accordions, *compliance_descriptions],
+                    fn=fetch_and_run_compliance_check,
+                    # cache_examples=True,  # TODO: Why does this break the app?
+                )
 
-    submit.click(
+    submit_markdown.click(
         fn=run_compliance_check,
         inputs=[model_card_box],
-        outputs=[results_list]
+        outputs=[*compliance_accordions, *compliance_descriptions]
     )
 
-    populate_sample.click(
+    submit_model_search.click(
+        fn=fetch_and_run_compliance_check,
+        inputs=[model_id_search],
+        outputs=[*compliance_accordions, *compliance_descriptions]
+    )
+
+    populate_sample_card.click(
         fn=lambda: bloom_card,
         inputs=[],
         outputs=[model_card_box]
