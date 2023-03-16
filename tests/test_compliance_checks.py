@@ -283,67 +283,13 @@ class TestComplianceSuite:
             check.run_check.assert_called_once()
 
 
-class TestEndToEnd:
-    @pytest.mark.parametrize("card,fixture", [
-        ("""
-# Model Card for Sample Model
-
-Some random info...
-
-## Model Details
-
-### Model Description
-
-- **Developed by:** Nima Boscarino
-- **Model type:** Yada yada yada
-
-## Uses
-
-### Direct Use
-
-Here is some info about direct uses...
-
-### Downstream Use [optional]
-
-[More Information Needed]
-
-### Out-of-Scope Use
-
-Here is some info about out-of-scope uses...
-
-## Bias, Risks, and Limitations
-
-Hello world! These are some risks...
-
-## Technical Specifications
-
-### Compute infrastructure
-Jean Zay Public Supercomputer, provided by the French government.
-
-#### Hardware
-
-* 384 A100 80GB GPUs (48 nodes)
-
-#### Software
-
-* Megatron-DeepSpeed ([Github link](https://github.com/bigscience-workshop/Megatron-DeepSpeed))
-</details>
-
-## More Things
-        """, False),
-        ("bloom_card", True)
+def test_end_to_end_compliance_suite(real_model_card, expected_check_results):
+    suite = ComplianceSuite(checks=[
+        IntendedPurposeCheck(),
+        GeneralLimitationsCheck(),
+        ComputationalRequirementsCheck()
     ])
-    def test_end_to_end_compliance_suite(self, card, fixture, request):
-        if fixture:
-            card = request.getfixturevalue(card)
 
-        suite = ComplianceSuite(checks=[
-            ModelProviderIdentityCheck(),
-            IntendedPurposeCheck(),
-            GeneralLimitationsCheck(),
-            ComputationalRequirementsCheck()
-        ])
+    results = suite.run(real_model_card)
 
-        results = suite.run(card)
-
-        assert all([r.status for r in results])
+    assert all([r.status == e for r, e in zip(results, expected_check_results)])
