@@ -1,7 +1,4 @@
-# fastapi
-# uvicorn
 markdown
 beautifulsoup4
-# tabulate
-# pytest
+pytest
 gradio
