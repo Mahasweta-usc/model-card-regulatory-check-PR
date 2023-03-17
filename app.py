@@ -4,7 +4,6 @@ from huggingface_hub import ModelCard
 from compliance_checks import (
     ComplianceSuite,
     ComplianceCheck,
-    ModelProviderIdentityCheck,
     IntendedPurposeCheck,
     GeneralLimitationsCheck,
     ComputationalRequirementsCheck,
@@ -13,7 +12,6 @@ from compliance_checks import (
 from bloom_card import bloom_card
 
 checks = [
-    ModelProviderIdentityCheck(),
     IntendedPurposeCheck(),
     GeneralLimitationsCheck(),
     ComputationalRequirementsCheck(),
@@ -47,51 +45,68 @@ def compliance_result(compliance_check: ComplianceCheck):
     return accordion, description
 
 
-with gr.Blocks(css="#reverse-row { flex-direction: row-reverse; }") as demo:
+def read_file(file_obj):
+    with open(file_obj.name) as f:
+        return f.read()
+
+
+model_card_box = gr.TextArea(label="Model Card")
+
+with gr.Blocks(css="#reverse-row { flex-direction: row-reverse;} #file-upload .boundedheight {max-height: 100px;}") as demo:
     gr.Markdown("""\
-    # Model Card Validator
-    Following Article 13 of the EU AI Act
+    # RegCheck AI
+    This Space uses model cards’ information as a source of regulatory compliance with some provisions of the proposed [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206). For the moment being, the demo is a **prototype** limited to specific provisions of Article 13 of the AI Act, related to “Transparency and provision of information to users”. Choose a model card and check whether it has some useful info to comply with the EU AI Act! **(DISCLAIMER: this is NOT a commercial or legal advice-related product)**
+
     """)
 
     with gr.Row(elem_id="reverse-row"):
-        with gr.Tab(label="Results"):
-            with gr.Column():
-                compliance_results = [compliance_result(c) for c in suite.checks]
-                compliance_accordions = [c[0] for c in compliance_results]
-                compliance_descriptions = [c[1] for c in compliance_results]
+        with gr.Column():
+            submit_markdown = gr.Button(value="Run validation checks")
+            with gr.Tab(label="Results"):
+                with gr.Column():
+                    compliance_results = [compliance_result(c) for c in suite.checks]
+                    compliance_accordions = [c[0] for c in compliance_results]
+                    compliance_descriptions = [c[1] for c in compliance_results]
 
         with gr.Column():
-            with gr.Tab(label="Markdown"):
-                model_card_box = gr.TextArea()
-                populate_sample_card = gr.Button(value="Populate Sample")
-                submit_markdown = gr.Button()
-            with gr.Tab(label="Search for Model"):
-                model_id_search = gr.Text()
-                submit_model_search = gr.Button()
+            with gr.Tab(label="Load a card from the 🤗 Hugging Face Hub"):
+                model_id_search = gr.Text(label="Model ID")
                 gr.Examples(
-                    examples=["society-ethics/model-card-webhook-test"],
+                    examples=[
+                        "society-ethics/model-card-webhook-test",
+                        "bigscience/bloom",
+                        "roberta-base",
+                        "openai/clip-vit-base-patch32",
+                        "distilbert-base-cased-distilled-squad",
+                    ],
+                    fn=lambda x: ModelCard.load(repo_id_or_path=x).content,
                     inputs=[model_id_search],
-                    outputs=[*compliance_accordions, *compliance_descriptions],
-                    fn=fetch_and_run_compliance_check,
+                    outputs=[model_card_box]
                     # cache_examples=True,  # TODO: Why does this break the app?
                 )
+
+                submit_model_search = gr.Button(value="Load model card")
+
+            with gr.Tab(label="Upload your own card"):
+                file = gr.UploadButton(label="Upload a Markdown file", elem_id="file-upload")
+                file.upload(
+                    fn=read_file,
+                    inputs=[file],
+                    outputs=[model_card_box]
+                )
+
+            model_card_box.render()
+
+    submit_model_search.click(
+        fn=lambda x: ModelCard.load(repo_id_or_path=x).content,
+        inputs=[model_id_search],
+        outputs=[model_card_box]
+    )
 
     submit_markdown.click(
         fn=run_compliance_check,
         inputs=[model_card_box],
         outputs=[*compliance_accordions, *compliance_descriptions]
-    )
-
-    submit_model_search.click(
-        fn=fetch_and_run_compliance_check,
-        inputs=[model_id_search],
-        outputs=[*compliance_accordions, *compliance_descriptions]
-    )
-
-    populate_sample_card.click(
-        fn=lambda: bloom_card,
-        inputs=[],
-        outputs=[model_card_box]
     )
 
 demo.launch()
