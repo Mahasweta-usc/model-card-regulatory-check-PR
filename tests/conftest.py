@@ -5,6 +5,9 @@ from pathlib import Path
 
 # TODO: I have the option of maybe making a check for accuracy/metrics?
 
+# Note, some of these are marked as FALSE instead of TRUE because the
+# information is hidden somewhere non-standard, e.g. described in prose
+
 # Intended Purpose, General Limitations, Computational Requirements
 expected_check_results = {
     "albert-base-v2": [True, True, False],
@@ -22,7 +25,7 @@ expected_check_results = {
     "gpt2": [True, True, False],
     "Helsinki-NLP___opus-mt-en-es": [False, False, False],
     "jonatasgrosman___wav2vec2-large-xlsr-53-english": [False, False, False],
-    "microsoft___layoutlmv3-base": [True, False, False],
+    "microsoft___layoutlmv3-base": [False, False, False],
     "openai___clip-vit-base-patch32": [True, True, False],
     "openai___clip-vit-large-patch14": [True, True, False],
     "philschmid___bart-large-cnn-samsum": [False, False, False],
@@ -36,7 +39,7 @@ expected_check_results = {
     "t5-small": [True, False, False],
     "xlm-roberta-base": [True, False, False],
     "xlm-roberta-large": [True, False, False],
-    "yiyanghkust___finbert-tone": [True, False, False],
+    "yiyanghkust___finbert-tone": [False, False, False],
 }
 
 

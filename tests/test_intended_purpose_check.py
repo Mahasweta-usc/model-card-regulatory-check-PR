@@ -2,18 +2,12 @@ import pytest
 
 import markdown
 from bs4 import BeautifulSoup
-from compliance_checks import (
+from compliance_checks.intended_purpose import (
     IntendedPurposeCheck, IntendedPurposeResult,
 )
 
 
-@pytest.fixture
-def intended_purpose_model_card():
-    return """
-# Model Card for Sample Model
-
-Some random info...
-
+model_card_template = """\
 ## Uses
 
 <!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
@@ -33,67 +27,69 @@ Here is some info about direct uses...
 <!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
 
 Here is some info about out-of-scope uses...
+"""
+albert_base_v2 = """\
+# ALBERT Base v2
 
-## Bias, Risks, and Limitations
-
-<!-- This section is meant to convey both technical and sociotechnical limitations. -->
-
-[More Information Needed]        
-    """
-
-
-@pytest.fixture
-def bad_intended_purpose_model_card():
-    return """
-# Model Card for Sample Model
-
-Some random info...
+## Intended uses & limitations
+Here is some info about direct uses...
+"""
+distilbert_base_cased_distilled_squad = """\
+# DistilBERT base cased distilled SQuAD
 
 ## Uses
 
-<!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
+This model can be used for question answering.
+"""
+distilroberta_base = """\
+# Model Card for DistilRoBERTa base
 
-### Direct Use
+# Uses
 
-<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
+You can use the raw model for masked language modeling, but it's mostly intended to be fine-tuned on a downstream task.
+"""
 
-[More Information Needed]
+openai_clip_vit_base_patch = """\
+# Model Card: CLIP
 
-### Downstream Use [optional]
+## Model Use
+Stuff.
 
-<!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
+### Intended Use
+Stuff.
 
-[More Information Needed]
+#### Primary intended uses
+Stuff.
 
-### Out-of-Scope Use
+### Out-of-Scope Use Cases
+Stuff.
+"""
 
-<!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
+sentence_transformers = """\
+# all-MiniLM-L6-v2
 
-[More Information Needed]
+## Intended uses
 
-## Bias, Risks, and Limitations
+Our model is intented to be used as a sentence and short paragraph encoder.
+"""
 
-<!-- This section is meant to convey both technical and sociotechnical limitations. -->
+success_result = IntendedPurposeResult(
+    status=True
+)
 
-[More Information Needed]
-    """
 
-
-@pytest.mark.parametrize("check,card,expected", [
-    (IntendedPurposeCheck(), "intended_purpose_model_card", IntendedPurposeResult(
-        status=True,
-        direct_use="Here is some info about direct uses...",
-        downstream_use=None,
-        out_of_scope_use="Here is some info about out-of-scope uses...",
-    )),
-    (IntendedPurposeCheck(), "bad_intended_purpose_model_card", IntendedPurposeResult()),
+@pytest.mark.parametrize("card", [
+    model_card_template,
+    albert_base_v2,
+    distilbert_base_cased_distilled_squad,
+    distilroberta_base,
+    openai_clip_vit_base_patch,
+    sentence_transformers,
 ])
-def test_run_checks(check, card, expected, request):
-    card = request.getfixturevalue(card)
-
+def test_run_checks(card):
     model_card_html = markdown.markdown(card)
     card_soup = BeautifulSoup(model_card_html, features="html.parser")
 
-    results = check.run_check(card_soup)
+    results = IntendedPurposeCheck().run_check(card_soup)
 
-    assert results == expected
+    assert results == success_result

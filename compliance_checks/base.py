@@ -5,7 +5,7 @@ import markdown
 from bs4 import BeautifulSoup, Comment
 
 
-def walk_to_next_heading(card, heading, heading_text):
+def walk_to_next_heading(card, heading, heading_text) -> bool:
     stop_at = [heading, f"h{int(heading[1]) - 1}"]
 
     try:
@@ -22,11 +22,11 @@ def walk_to_next_heading(card, heading, heading_text):
             sibling = next(sibling_gen, None)
 
         if content.strip() == "[More Information Needed]":
-            return False, None
+            return False  # , None
 
-        return True, content
+        return True  # , content
     except AttributeError:
-        return False, None
+        return False  # , None
 
 
 class ComplianceResult(ABC):
@@ -92,55 +92,6 @@ class ModelProviderIdentityCheck(ComplianceCheck):
             return ModelProviderIdentityResult(status=True, provider=developer)
         except AttributeError:
             return ModelProviderIdentityResult()
-
-
-class IntendedPurposeResult(ComplianceResult):
-    name = "Intended Purpose"
-
-    def __init__(
-            self,
-            direct_use: str = None,
-            downstream_use: str = None,
-            out_of_scope_use: str = None,
-            *args,
-            **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.direct_use = direct_use
-        self.downstream_use = downstream_use
-        self.out_of_scope_use = out_of_scope_use
-
-    def __eq__(self, other):
-        if isinstance(other, IntendedPurposeResult):
-            if super().__eq__(other):
-                try:
-                    assert self.direct_use == other.direct_use
-                    assert self.downstream_use == other.downstream_use
-                    assert self.out_of_scope_use == other.out_of_scope_use
-                    return True
-                except AssertionError:
-                    return False
-        else:
-            return False
-
-    def to_string(self):
-        return str((self.direct_use, self.direct_use, self.out_of_scope_use))
-
-
-class IntendedPurposeCheck(ComplianceCheck):
-    name = "Intended Purpose"
-
-    def run_check(self, card: BeautifulSoup):
-        direct_use_check, direct_use_content = walk_to_next_heading(card, "h3", "Direct Use")
-        # TODO: Handle [optional], which doesn't exist in BLOOM, e.g.
-        downstream_use_check, downstream_use_content = walk_to_next_heading(card, "h3", "Downstream Use [optional]")
-        out_of_scope_use_check, out_of_scope_use_content = walk_to_next_heading(card, "h3", "Out-of-Scope Use")
-        return IntendedPurposeResult(
-            status=direct_use_check and out_of_scope_use_check,
-            direct_use=direct_use_content,
-            downstream_use=downstream_use_content,
-            out_of_scope_use=out_of_scope_use_content
-        )
 
 
 class GeneralLimitationsResult(ComplianceResult):
