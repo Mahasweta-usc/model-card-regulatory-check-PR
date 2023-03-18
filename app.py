@@ -5,16 +5,10 @@ from compliance_checks import (
     ComplianceSuite,
     ComplianceCheck,
     IntendedPurposeCheck,
-    GeneralLimitationsCheck,
-    ComputationalRequirementsCheck,
 )
-
-from bloom_card import bloom_card
 
 checks = [
     IntendedPurposeCheck(),
-    GeneralLimitationsCheck(),
-    ComputationalRequirementsCheck(),
 ]
 suite = ComplianceSuite(checks=checks)
 
@@ -52,11 +46,21 @@ def read_file(file_obj):
 
 model_card_box = gr.TextArea(label="Model Card")
 
-with gr.Blocks(css="#reverse-row { flex-direction: row-reverse;} #file-upload .boundedheight {max-height: 100px;}") as demo:
+with gr.Blocks(css="""\
+#reverse-row {
+    flex-direction: row-reverse;
+}
+#file-upload .boundedheight {
+    max-height: 100px;
+}
+""") as demo:
     gr.Markdown("""\
     # RegCheck AI
-    This Space uses model cards’ information as a source of regulatory compliance with some provisions of the proposed [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206). For the moment being, the demo is a **prototype** limited to specific provisions of Article 13 of the AI Act, related to “Transparency and provision of information to users”. Choose a model card and check whether it has some useful info to comply with the EU AI Act! **(DISCLAIMER: this is NOT a commercial or legal advice-related product)**
-
+    This Space uses model cards’ information as a source of regulatory compliance with some provisions of the proposed \
+    [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206). For the moment being, the \
+    demo is a **prototype** limited to specific provisions of Article 13 of the AI Act, related to “Transparency and \
+    provision of information to users”. Choose a model card and check whether it has some useful info to comply with \
+    the EU AI Act! **(DISCLAIMER: this is NOT a commercial or legal advice-related product)**\
     """)
 
     with gr.Row(elem_id="reverse-row"):
@@ -73,7 +77,6 @@ with gr.Blocks(css="#reverse-row { flex-direction: row-reverse;} #file-upload .b
                 model_id_search = gr.Text(label="Model ID")
                 gr.Examples(
                     examples=[
-                        "society-ethics/model-card-webhook-test",
                         "bigscience/bloom",
                         "roberta-base",
                         "openai/clip-vit-base-patch32",
