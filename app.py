@@ -6,11 +6,13 @@ from compliance_checks import (
     ComplianceCheck,
     IntendedPurposeCheck,
     GeneralLimitationsCheck,
+    ComputationalRequirementsCheck,
 )
 
 checks = [
     IntendedPurposeCheck(),
     GeneralLimitationsCheck(),
+    ComputationalRequirementsCheck(),
 ]
 suite = ComplianceSuite(checks=checks)
 

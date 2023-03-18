@@ -31,9 +31,9 @@ expected_check_results = {
     "openai___clip-vit-large-patch14": [True, True, False],
     "philschmid___bart-large-cnn-samsum": [False, False, False],
     "prajjwal1___bert-tiny": [False, False, False],
-    "roberta-base": [True, True, True],  # For the computational requirements, sort of?
-    "roberta-large": [True, True, True],
-    "runwayml___stable-diffusion-v1-5": [True, True, True],
+    "roberta-base": [True, True, False],
+    "roberta-large": [True, True, False],
+    "runwayml___stable-diffusion-v1-5": [True, True, False],
     "sentence-transformers___all-MiniLM-L6-v2": [True, False, False],
     "StanfordAIMI___stanford-deidentifier-base": [False, False, False],
     "t5-base": [True, False, False],

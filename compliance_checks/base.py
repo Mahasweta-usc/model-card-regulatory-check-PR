@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional, List
 
 import markdown
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup
 
 
 def walk_to_next_heading(card, heading, heading_text) -> bool:
@@ -92,45 +92,6 @@ class ModelProviderIdentityCheck(ComplianceCheck):
             return ModelProviderIdentityResult(status=True, provider=developer)
         except AttributeError:
             return ModelProviderIdentityResult()
-
-
-class ComputationalRequirementsResult(ComplianceResult):
-    name = "Computational Requirements"
-
-    def __init__(
-            self,
-            requirements: str = None,
-            *args,
-            **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.requirements = requirements
-
-    def __eq__(self, other):
-        if isinstance(other, ComputationalRequirementsResult):
-            if super().__eq__(other):
-                try:
-                    assert self.requirements == other.requirements
-                    return True
-                except AssertionError:
-                    return False
-        else:
-            return False
-
-    def to_string(self):
-        return self.requirements
-
-
-class ComputationalRequirementsCheck(ComplianceCheck):
-    name = "Computational Requirements"
-
-    def run_check(self, card: BeautifulSoup):
-        check, content = walk_to_next_heading(card, "h3", "Compute infrastructure")
-
-        return ComputationalRequirementsResult(
-            status=check,
-            requirements=content,
-        )
 
 
 class ComplianceSuite:
