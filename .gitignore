@@ -1,3 +1,5 @@
 flagged/
 gradio_cached_examples/
+.DS_Store
+__pycache__/
 .idea/
