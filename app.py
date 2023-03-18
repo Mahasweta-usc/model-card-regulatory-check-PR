@@ -5,10 +5,12 @@ from compliance_checks import (
     ComplianceSuite,
     ComplianceCheck,
     IntendedPurposeCheck,
+    GeneralLimitationsCheck,
 )
 
 checks = [
     IntendedPurposeCheck(),
+    GeneralLimitationsCheck(),
 ]
 suite = ComplianceSuite(checks=checks)
 

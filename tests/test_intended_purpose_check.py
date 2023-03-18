@@ -49,7 +49,7 @@ distilroberta_base = """\
 You can use the raw model for masked language modeling, but it's mostly intended to be fine-tuned on a downstream task.
 """
 
-openai_clip_vit_base_patch = """\
+clip = """\
 # Model Card: CLIP
 
 ## Model Use
@@ -73,6 +73,13 @@ sentence_transformers = """\
 Our model is intented to be used as a sentence and short paragraph encoder.
 """
 
+bloom = """\
+# BLOOM  
+
+## Intended Use
+This model is being created in order to enable public research on large language models (LLMs).
+"""
+
 success_result = IntendedPurposeResult(
     status=True
 )
@@ -83,8 +90,9 @@ success_result = IntendedPurposeResult(
     albert_base_v2,
     distilbert_base_cased_distilled_squad,
     distilroberta_base,
-    openai_clip_vit_base_patch,
+    clip,
     sentence_transformers,
+    bloom,
 ])
 def test_run_checks(card):
     model_card_html = markdown.markdown(card)

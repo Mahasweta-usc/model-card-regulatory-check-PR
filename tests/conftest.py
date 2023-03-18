@@ -14,6 +14,7 @@ expected_check_results = {
     "bert-base-cased": [True, True, False],
     "bert-base-multilingual-cased": [True, True, False],
     "bert-base-uncased": [True, True, False],
+    "big-science___bloom": [True, True, True],
     "cl-tohoku___bert-base-japanese-whole-word-masking": [False, False, False],
     "distilbert-base-cased-distilled-squad": [True, True, True],
     "distilbert-base-uncased": [True, True, False],
@@ -37,8 +38,8 @@ expected_check_results = {
     "StanfordAIMI___stanford-deidentifier-base": [False, False, False],
     "t5-base": [True, False, False],
     "t5-small": [True, False, False],
-    "xlm-roberta-base": [True, False, False],
-    "xlm-roberta-large": [True, False, False],
+    "xlm-roberta-base": [True, True, False],
+    "xlm-roberta-large": [True, True, False],
     "yiyanghkust___finbert-tone": [False, False, False],
 }
 

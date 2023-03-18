@@ -11,17 +11,17 @@ def walk_to_next_heading(card, heading, heading_text) -> bool:
     try:
         heading_node = card.find(heading, string=heading_text)
 
-        content = ""
+        content = []
 
         sibling_gen = heading_node.nextSiblingGenerator()
         sibling = next(sibling_gen)
 
         while sibling and (not (sibling.name is not None and sibling.name in stop_at) or sibling.name is None):
-            if not isinstance(sibling, Comment):
-                content = content + sibling.text.strip()
+            if sibling.name == "p":
+                content.append(sibling.text.strip())
             sibling = next(sibling_gen, None)
 
-        if content.strip() == "[More Information Needed]":
+        if all([c in ["[More Information Needed]", "More information needed."] for c in content]):
             return False  # , None
 
         return True  # , content
@@ -92,45 +92,6 @@ class ModelProviderIdentityCheck(ComplianceCheck):
             return ModelProviderIdentityResult(status=True, provider=developer)
         except AttributeError:
             return ModelProviderIdentityResult()
-
-
-class GeneralLimitationsResult(ComplianceResult):
-    name = "General Limitations"
-
-    def __init__(
-            self,
-            limitations: str = None,
-            *args,
-            **kwargs,
-    ):
-        super().__init__(*args, **kwargs)
-        self.limitations = limitations
-
-    def __eq__(self, other):
-        if isinstance(other, GeneralLimitationsResult):
-            if super().__eq__(other):
-                try:
-                    assert self.limitations == other.limitations
-                    return True
-                except AssertionError:
-                    return False
-        else:
-            return False
-
-    def to_string(self):
-        return self.limitations
-
-
-class GeneralLimitationsCheck(ComplianceCheck):
-    name = "General Limitations"
-
-    def run_check(self, card: BeautifulSoup):
-        check, content = walk_to_next_heading(card, "h2", "Bias, Risks, and Limitations")
-
-        return GeneralLimitationsResult(
-            status=check,
-            limitations=content
-        )
 
 
 class ComputationalRequirementsResult(ComplianceResult):

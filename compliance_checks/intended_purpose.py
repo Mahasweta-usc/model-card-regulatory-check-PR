@@ -45,6 +45,7 @@ class IntendedPurposeCheck(ComplianceCheck):
             ("h1", "Uses"), ("h2", "Uses"),
             ("h2", "Model Use"),
             ("h2", "Intended uses"),
+            ("h2", "Intended Use"),
         ]
 
         for hX, heading in combos:
