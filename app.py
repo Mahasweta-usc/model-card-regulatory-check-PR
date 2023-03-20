@@ -37,8 +37,7 @@ def fetch_and_run_compliance_check(model_id: str):
 
 def compliance_result(compliance_check: ComplianceCheck):
     accordion = gr.Accordion(label=f"{compliance_check.name}", open=False)
-    with accordion:
-        description = gr.Markdown("Run an evaluation to see results...")
+    description = gr.Markdown("Run an evaluation to see results...")
 
     return accordion, description
 
