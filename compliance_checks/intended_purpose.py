@@ -33,7 +33,45 @@ class IntendedPurposeResult(ComplianceResult):
             return False
 
     def to_string(self):
-        return str((self.direct_use, self.direct_use, self.out_of_scope_use))
+        if self.status:
+            return """\
+            It looks like this model card has some documentation for the model's intended purpose! We look for this by \
+            searching for headings that say things like:
+            - Intended uses & limitations
+            - Uses
+            - Model Use
+            """
+        else:
+            return """\
+            We weren't able to find a section in this model card for the model's intended purpose, but it's easy to \
+            add one! You can add the following section to the model card and, once you fill in the \
+            `[More Information Needed]` sections, the "Intended Purpose" check should pass 🤗
+            
+            ```md
+            ## Uses
+            
+            <!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
+
+            [More Information Needed]
+            
+            ### Direct Use
+            
+            <!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
+            
+            [More Information Needed]
+            
+            ### Downstream Use [optional]
+            
+            <!-- This section is for the model use when fine-tuned for a task, or when plugged into a larger ecosystem/app -->
+            
+            [More Information Needed]
+            
+            ### Out-of-Scope Use
+            
+            <!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
+            [More Information Needed]
+            ```
+            """
 
 
 class IntendedPurposeCheck(ComplianceCheck):

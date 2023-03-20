@@ -6,15 +6,17 @@ from compliance_checks.intended_purpose import (
     IntendedPurposeCheck, IntendedPurposeResult,
 )
 
-
-model_card_template = """\
+empty_template = """\
 ## Uses
 
 <!-- Address questions around how the model is intended to be used, including the foreseeable users of the model and those affected by the model. -->
+[More Information Needed]
 
 ### Direct Use
 
-Here is some info about direct uses...
+[More Information Needed]
+
+<!-- This section is for the model use without fine-tuning or plugging into a larger ecosystem/app. -->
 
 ### Downstream Use [optional]
 
@@ -25,6 +27,22 @@ Here is some info about direct uses...
 ### Out-of-Scope Use
 
 <!-- This section addresses misuse, malicious use, and uses that the model will not work well for. -->
+[More Information Needed]
+"""
+model_card_template = """\
+## Uses
+
+Some info...
+
+### Direct Use
+
+Some more info.
+
+### Downstream Use [optional]
+
+[More Information Needed]
+
+### Out-of-Scope Use
 
 Here is some info about out-of-scope uses...
 """
@@ -101,3 +119,10 @@ def test_run_checks(card):
     results = IntendedPurposeCheck().run_check(card_soup)
 
     assert results == success_result
+
+
+def test_fail_on_empty_template():
+    model_card_html = markdown.markdown(empty_template)
+    card_soup = BeautifulSoup(model_card_html, features="html.parser")
+    results = IntendedPurposeCheck().run_check(card_soup)
+    assert results == IntendedPurposeResult()

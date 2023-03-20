@@ -27,16 +27,50 @@ class ComputationalRequirementsResult(ComplianceResult):
             return False
 
     def to_string(self):
-        return self.requirements
+        if self.status:
+            return """\
+            In order for users to know what kind of hardware and software they need to run a model, a model card \
+            should have information about the model's computational requirements. We found some documentation \
+            for this in this model card. We look for this by searching for a heading called "Technical Specifications".
+            """
+        else:
+            return """\
+            We weren't able to find a section in this model card for the model's computational requirements, but it's \
+            easy to add one! You can add the following section to the model card and, once you fill in the \
+            `[More Information Needed]` sections, the "Computational Requirements" check should pass 🤗
+
+            ```md
+            ## Technical Specifications [optional]
+            
+            ### Compute Infrastructure
+            
+            [More Information Needed]
+            
+            #### Hardware
+            
+            [More Information Needed]
+            
+            #### Software
+            
+            [More Information Needed]
+            ```
+            """
 
 
 class ComputationalRequirementsCheck(ComplianceCheck):
     name = "Computational Requirements"
 
     def run_check(self, card: BeautifulSoup):
-        check = walk_to_next_heading(card, "h2", "Technical Specifications")
+        combos = [
+            ("h2", "Technical Specifications"),
+            ("h2", "Technical Specifications [optional]"),
+        ]
 
-        return ComputationalRequirementsResult(
-            status=check,
-            # requirements=content,
-        )
+        for hX, heading in combos:
+            purpose_check = walk_to_next_heading(card, hX, heading)
+            if purpose_check:
+                return ComputationalRequirementsResult(
+                    status=True,
+                )
+
+        return ComputationalRequirementsResult()

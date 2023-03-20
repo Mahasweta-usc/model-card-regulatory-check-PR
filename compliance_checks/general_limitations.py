@@ -26,7 +26,34 @@ class GeneralLimitationsResult(ComplianceResult):
             return False
 
     def to_string(self):
-        return self.limitations
+        if self.status:
+            return """\
+            It's important for model cards to document the model's general limitations! We found some documentation \
+            for this in this model card. We look for this by searching for headings that say things like:
+            - Bias, Risks, and Limitations
+            - Intended uses & limitations
+            - Limitations
+            """
+        else:
+            return """\
+            We weren't able to find a section in this model card for the model's limitations, but it's easy to \
+            add one! You can add the following section to the model card and, once you fill in the \
+            `[More Information Needed]` sections, the "General Limitations" check should pass 🤗
+
+            ```md
+            ## Bias, Risks, and Limitations
+            
+            <!-- This section is meant to convey both technical and sociotechnical limitations. -->
+            
+            [More Information Needed]
+            
+            ### Recommendations
+            
+            <!-- This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. -->
+            
+            Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations.
+            ```
+            """
 
 
 class GeneralLimitationsCheck(ComplianceCheck):

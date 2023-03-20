@@ -25,7 +25,7 @@ def run_compliance_check(model_card: str):
     results = suite.run(model_card)
 
     return [
-        *[gr.Accordion.update(label=f"{r.name} - {status_emoji(r.status)}") for r in results],
+        *[gr.Accordion.update(label=f"{r.name} - {status_emoji(r.status)}", open=not r.status) for r in results],
         *[gr.Markdown.update(value=r.to_string()) for r in results],
     ]
 
@@ -57,14 +57,26 @@ with gr.Blocks(css="""\
 #file-upload .boundedheight {
     max-height: 100px;
 }
+
+code {
+    overflow: scroll;
+}
 """) as demo:
     gr.Markdown("""\
     # RegCheck AI
-    This Space uses model cards’ information as a source of regulatory compliance with some provisions of the proposed \
+    This Space uses [model cards’](https://huggingface.co/docs/hub/model-cards) information as a source of regulatory \
+    compliance with some provisions of the proposed \
     [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206). For the moment being, the \
     demo is a **prototype** limited to specific provisions of Article 13 of the AI Act, related to “Transparency and \
-    provision of information to users”. Choose a model card and check whether it has some useful info to comply with \
-    the EU AI Act! **(DISCLAIMER: this is NOT a commercial or legal advice-related product)**\
+    provision of information to users”. **(DISCLAIMER: this is NOT a commercial or legal advice-related product)**
+    
+    To check a model card, first load it by doing any one of the following:
+    - If the model is on the Hugging Face Hub, enter its model ID and click "Load model card".
+    - If you have the model card on your computer as a Markdown file, select the "Upload your own card" tab and click \
+      "Upload a Markdown file".
+    - Paste your model card's text directly into the "Model Card" text area.
+    
+    Once your card is loaded, click "Run validation checks" to receive your results.
     """)
 
     with gr.Row(elem_id="reverse-row"):

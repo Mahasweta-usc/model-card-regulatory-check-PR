@@ -6,7 +6,19 @@ from compliance_checks import (
     GeneralLimitationsCheck, GeneralLimitationsResult,
 )
 
+empty_template = """\
+## Bias, Risks, and Limitations
 
+<!-- This section is meant to convey both technical and sociotechnical limitations. -->
+
+[More Information Needed]
+
+### Recommendations
+
+<!-- This section is meant to convey recommendations with respect to the bias, risk, and technical limitations. -->
+
+Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations.
+"""
 model_card_template = """\
 # Model Card for Sample Model
 
@@ -99,3 +111,10 @@ def test_run_checks(card):
     results = GeneralLimitationsCheck().run_check(card_soup)
 
     assert results == success_result
+
+
+def test_fail_on_empty_template():
+    model_card_html = markdown.markdown(empty_template)
+    card_soup = BeautifulSoup(model_card_html, features="html.parser")
+    results = GeneralLimitationsCheck().run_check(card_soup)
+    assert results == GeneralLimitationsResult()

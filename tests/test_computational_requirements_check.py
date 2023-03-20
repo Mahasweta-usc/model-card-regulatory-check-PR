@@ -7,6 +7,21 @@ from compliance_checks import (
 )
 
 
+empty_template = """\
+## Technical Specifications [optional]
+
+### Compute Infrastructure
+
+[More Information Needed]
+
+#### Hardware
+
+[More Information Needed]
+
+#### Software
+
+[More Information Needed]
+"""
 model_card_template = """\
 # Model Card for Sample Model
 
@@ -41,3 +56,10 @@ def test_run_checks(card):
     results = ComputationalRequirementsCheck().run_check(card_soup)
 
     assert results == success_result
+
+
+def test_fail_on_empty_template():
+    model_card_html = markdown.markdown(empty_template)
+    card_soup = BeautifulSoup(model_card_html, features="html.parser")
+    results = ComputationalRequirementsCheck().run_check(card_soup)
+    assert results == ComputationalRequirementsResult()
