@@ -50,10 +50,16 @@ def read_file(file_obj):
 
 model_card_box = gr.TextArea(label="Model Card")
 
+# Have to destructure everything since I need to delay rendering.
+col = gr.Column()
+submit_markdown = gr.Button(value="Run validation checks")
+tab = gr.Tab(label="Results")
+col2 = gr.Column()
+compliance_results = [compliance_result(c) for c in suite.checks]
+compliance_accordions = [c[0] for c in compliance_results]
+compliance_descriptions = [c[1] for c in compliance_results]
+
 with gr.Blocks(css="""\
-#reverse-row {
-    flex-direction: row-reverse;
-}
 #file-upload .boundedheight {
     max-height: 100px;
 }
@@ -79,15 +85,7 @@ code {
     Once your card is loaded, click "Run validation checks" to receive your results.
     """)
 
-    with gr.Row(elem_id="reverse-row"):
-        with gr.Column():
-            submit_markdown = gr.Button(value="Run validation checks")
-            with gr.Tab(label="Results"):
-                with gr.Column():
-                    compliance_results = [compliance_result(c) for c in suite.checks]
-                    compliance_accordions = [c[0] for c in compliance_results]
-                    compliance_descriptions = [c[1] for c in compliance_results]
-
+    with gr.Row():
         with gr.Column():
             with gr.Tab(label="Load a card from the 🤗 Hugging Face Hub"):
                 model_id_search = gr.Text(label="Model ID")
@@ -115,6 +113,14 @@ code {
                 )
 
             model_card_box.render()
+
+        with col.render():
+            submit_markdown.render()
+            with tab.render():
+                with col2.render():
+                    for a, d in compliance_results:
+                        with a.render():
+                            d.render()
 
     submit_model_search.click(
         fn=lambda x: ModelCard.load(repo_id_or_path=x).content,
