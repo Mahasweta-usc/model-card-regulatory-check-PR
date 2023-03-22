@@ -21,6 +21,11 @@ def status_emoji(status: bool):
     return "✅" if status else "🛑"
 
 
+def load_model_card_and_run_check(model_id):
+    card = ModelCard.load(repo_id_or_path=model_id).content
+    return card, *run_compliance_check(card)
+
+
 def run_compliance_check(model_card: str):
     results = suite.run(model_card)
 
@@ -42,9 +47,10 @@ def compliance_result(compliance_check: ComplianceCheck):
     return accordion, description
 
 
-def read_file(file_obj):
+def read_file_and_run_checks(file_obj):
     with open(file_obj.name) as f:
-        return f.read()
+        model_card = f.read()
+        return model_card, *run_compliance_check(model_card=model_card)
 
 
 model_card_box = gr.TextArea(label="Model Card")
@@ -81,7 +87,7 @@ code {
       "Upload a Markdown file".
     - Paste your model card's text directly into the "Model Card" text area.
     
-    Once your card is loaded, click "Run validation checks" to receive your results.
+    Once your card is loaded, the checks will run automatically. Edit the text content and click "Run validation checks" to receive new results.
     """)
 
     with gr.Row():
@@ -105,10 +111,11 @@ code {
 
             with gr.Tab(label="Upload your own card"):
                 file = gr.UploadButton(label="Upload a Markdown file", elem_id="file-upload")
+                # TODO: Bug – uploading more than once doesn't trigger the function? Gradio bug?
                 file.upload(
-                    fn=read_file,
+                    fn=read_file_and_run_checks,
                     inputs=[file],
-                    outputs=[model_card_box]
+                    outputs=[model_card_box, *compliance_accordions, *compliance_descriptions]
                 )
 
             model_card_box.render()
@@ -122,9 +129,9 @@ code {
                             d.render()
 
     submit_model_search.click(
-        fn=lambda x: ModelCard.load(repo_id_or_path=x).content,
+        fn=load_model_card_and_run_check,
         inputs=[model_id_search],
-        outputs=[model_card_box]
+        outputs=[model_card_box, *compliance_accordions, *compliance_descriptions]
     )
 
     submit_markdown.click(
