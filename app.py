@@ -1,5 +1,5 @@
 import gradio as gr
-from huggingface_hub import ModelCard
+from huggingface_hub import ModelCard, HfApi
 
 from compliance_checks import (
     ComplianceSuite,
@@ -8,6 +8,8 @@ from compliance_checks import (
     GeneralLimitationsCheck,
     ComputationalRequirementsCheck,
 )
+
+hf_api = HfApi()
 
 checks = [
     IntendedPurposeCheck(),
@@ -21,9 +23,20 @@ def status_emoji(status: bool):
     return "✅" if status else "🛑"
 
 
-def load_model_card_and_run_check(model_id):
+def search_for_models(query: str):
+    if query.strip() == "":
+        return examples, ",".join([e[0] for e in examples])
+    models = [m.id for m in list(iter(hf_api.list_models(search=query, limit=10)))]
+    model_samples = [[m] for m in models]
+    models_text = ",".join(models)
+    return model_samples, models_text
+
+
+def load_model_card(index, options_string: str):
+    options = options_string.split(",")
+    model_id = options[index]
     card = ModelCard.load(repo_id_or_path=model_id).content
-    return card, *run_compliance_check(card)
+    return card
 
 
 def run_compliance_check(model_card: str):
@@ -47,22 +60,28 @@ def compliance_result(compliance_check: ComplianceCheck):
     return accordion, description
 
 
-def read_file_and_run_checks(file_obj):
+def read_file(file_obj):
     with open(file_obj.name) as f:
         model_card = f.read()
-        return model_card, *run_compliance_check(model_card=model_card)
+        return model_card
 
 
 model_card_box = gr.TextArea(label="Model Card")
 
 # Have to destructure everything since I need to delay rendering.
 col = gr.Column()
-submit_markdown = gr.Button(value="Run validation checks")
 tab = gr.Tab(label="Results")
 col2 = gr.Column()
 compliance_results = [compliance_result(c) for c in suite.checks]
 compliance_accordions = [c[0] for c in compliance_results]
 compliance_descriptions = [c[1] for c in compliance_results]
+
+examples = [
+    ["bigscience/bloom"],
+    ["roberta-base"],
+    ["openai/clip-vit-base-patch32"],
+    ["distilbert-base-cased-distilled-squad"],
+]
 
 with gr.Blocks(css="""\
 #file-upload .boundedheight {
@@ -82,7 +101,7 @@ code {
     provision of information to users”. **(DISCLAIMER: this is NOT a commercial or legal advice-related product)**
     
     To check a model card, first load it by doing any one of the following:
-    - If the model is on the Hugging Face Hub, enter its model ID and click "Load model card".
+    - If the model is on the Hugging Face Hub, search for a model and select it from the results.
     - If you have the model card on your computer as a Markdown file, select the "Upload your own card" tab and click \
       "Upload a Markdown file".
     - Paste your model card's text directly into the "Model Card" text area.
@@ -93,48 +112,48 @@ code {
     with gr.Row():
         with gr.Column():
             with gr.Tab(label="Load a card from the 🤗 Hugging Face Hub"):
-                model_id_search = gr.Text(label="Model ID")
-                gr.Examples(
-                    examples=[
-                        "bigscience/bloom",
-                        "roberta-base",
-                        "openai/clip-vit-base-patch32",
-                        "distilbert-base-cased-distilled-squad",
-                    ],
-                    fn=lambda x: ModelCard.load(repo_id_or_path=x).content,
-                    inputs=[model_id_search],
-                    outputs=[model_card_box]
-                    # cache_examples=True,  # TODO: Why does this break the app?
+                with gr.Row():
+                    model_id_search = gr.Text(label="Model ID")
+
+                search_results_text = gr.Text(visible=False, value=",".join([e[0] for e in examples]))
+                search_results_index = gr.Dataset(
+                    label="Search Results",
+                    components=[model_id_search],
+                    samples=examples,
+                    type="index",
                 )
 
-                submit_model_search = gr.Button(value="Load model card")
+                model_id_search.change(
+                    fn=search_for_models,
+                    inputs=[model_id_search],
+                    outputs=[search_results_index, search_results_text]
+                )
 
             with gr.Tab(label="Upload your own card"):
                 file = gr.UploadButton(label="Upload a Markdown file", elem_id="file-upload")
                 # TODO: Bug – uploading more than once doesn't trigger the function? Gradio bug?
                 file.upload(
-                    fn=read_file_and_run_checks,
+                    fn=read_file,
                     inputs=[file],
-                    outputs=[model_card_box, *compliance_accordions, *compliance_descriptions]
+                    outputs=[model_card_box]
                 )
 
             model_card_box.render()
 
         with col.render():
-            submit_markdown.render()
             with tab.render():
                 with col2.render():
                     for a, d in compliance_results:
                         with a.render():
                             d.render()
 
-    submit_model_search.click(
-        fn=load_model_card_and_run_check,
-        inputs=[model_id_search],
-        outputs=[model_card_box, *compliance_accordions, *compliance_descriptions]
+    search_results_index.click(
+        fn=load_model_card,
+        inputs=[search_results_index, search_results_text],
+        outputs=[model_card_box]
     )
 
-    submit_markdown.click(
+    model_card_box.change(
         fn=run_compliance_check,
         inputs=[model_card_box],
         outputs=[*compliance_accordions, *compliance_descriptions]
