@@ -1,3 +1,4 @@
+import os
 import gradio as gr
 from huggingface_hub import ModelCard, HfApi
 
@@ -7,6 +8,13 @@ from compliance_checks import (
     IntendedPurposeCheck,
     GeneralLimitationsCheck,
     ComputationalRequirementsCheck,
+)
+
+hf_writer = gr.HuggingFaceDatasetSaver(
+    os.getenv('HUGGING_FACE_HUB_TOKEN'),
+    organization="society-ethics",
+    dataset_name="model-card-regulatory-check-flags",
+    private=True
 )
 
 hf_api = HfApi()
@@ -145,6 +153,13 @@ code {
                         with a.render():
                             d.render()
 
+            flag = gr.Button(value="Disagree with the result? Click here to flag it! 🚩")
+            flag_message = gr.Text(
+                show_label=False,
+                visible=False,
+                value="Thank you for flagging this! We'll use your report to improve the tool 🤗"
+            )
+
     search_results_index.click(
         fn=load_model_card,
         inputs=[search_results_index, search_results_text],
@@ -156,5 +171,16 @@ code {
         inputs=[model_card_box],
         outputs=[*compliance_accordions, *compliance_descriptions]
     )
+
+    flag.click(
+        fn=lambda x: hf_writer.flag(flag_data=[x]) and gr.Text.update(visible=True),
+        inputs=[model_card_box],
+        outputs=[flag_message]
+    )
+
+hf_writer.setup(
+    components=[model_card_box],
+    flagging_dir="flagged"
+)
 
 demo.launch()
