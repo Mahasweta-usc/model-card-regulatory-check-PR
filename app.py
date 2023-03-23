@@ -104,11 +104,12 @@ code {
 """) as demo:
     gr.Markdown("""\
     # RegCheck AI
-    This Space uses [model cards’](https://huggingface.co/docs/hub/model-cards) information as a source of regulatory \
-    compliance with some provisions of the proposed \
-    [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206). For the moment being, the \
-    demo is a **prototype** limited to specific provisions of Article 13 of the AI Act, related to “Transparency and \
-    provision of information to users”. **(DISCLAIMER: this is NOT a commercial or legal advice-related product)**
+    This Space matches information in [model cards](https://huggingface.co/docs/hub/model-cards) to proposed regulatory \
+    compliance descriptions in the [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206). \
+    This is a  **prototype** to explore the feasibility of automatic checks for compliance, \
+    and is limited to specific provisions of Article 13 of the Act, “Transparency and \
+    provision of information to users”. \
+    **This is research work and NOT a commercial or legal product**
     
     To check a model card, first load it by doing any one of the following:
     - If the model is on the Hugging Face Hub, search for a model and select it from the results.
