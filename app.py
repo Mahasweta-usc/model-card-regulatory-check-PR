@@ -105,8 +105,6 @@ code {
     - If you have the model card on your computer as a Markdown file, select the "Upload your own card" tab and click \
       "Upload a Markdown file".
     - Paste your model card's text directly into the "Model Card" text area.
-    
-    Once your card is loaded, the checks will run automatically. Edit the text content and click "Run validation checks" to receive new results.
     """)
 
     with gr.Row():
