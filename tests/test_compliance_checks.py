@@ -6,6 +6,7 @@ from compliance_checks import (
     IntendedPurposeCheck,
     GeneralLimitationsCheck,
     ComputationalRequirementsCheck,
+    EvaluationCheck,
 )
 
 
@@ -60,7 +61,8 @@ def test_end_to_end_compliance_suite(real_model_card, expected_check_results):
     suite = ComplianceSuite(checks=[
         IntendedPurposeCheck(),
         GeneralLimitationsCheck(),
-        ComputationalRequirementsCheck()
+        ComputationalRequirementsCheck(),
+        EvaluationCheck(),
     ])
 
     results = suite.run(real_model_card)

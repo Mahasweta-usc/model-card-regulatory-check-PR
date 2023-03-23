@@ -14,3 +14,7 @@ from compliance_checks.general_limitations import (
 from compliance_checks.computational_requirements import (
     ComputationalRequirementsCheck, ComputationalRequirementsResult,
 )
+
+from compliance_checks.evaluation import (
+    EvaluationCheck, EvaluationResult,
+)

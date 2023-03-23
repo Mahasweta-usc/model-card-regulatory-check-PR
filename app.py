@@ -8,6 +8,7 @@ from compliance_checks import (
     IntendedPurposeCheck,
     GeneralLimitationsCheck,
     ComputationalRequirementsCheck,
+    EvaluationCheck,
 )
 
 hf_writer = gr.HuggingFaceDatasetSaver(
@@ -23,6 +24,7 @@ checks = [
     IntendedPurposeCheck(),
     GeneralLimitationsCheck(),
     ComputationalRequirementsCheck(),
+    EvaluationCheck(),
 ]
 suite = ComplianceSuite(checks=checks)
 
