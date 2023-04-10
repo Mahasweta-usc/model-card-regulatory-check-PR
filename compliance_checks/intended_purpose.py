@@ -82,7 +82,7 @@ class IntendedPurposeCheck(ComplianceCheck):
             ("h2", "Intended uses & limitations"),
             ("h1", "Uses"), ("h2", "Uses"),
             ("h2", "Model Use"),
-            ("h2", "Intended uses"),
+            ("h1", "Intended uses"), ("h2", "Intended uses"),
             ("h2", "Intended Use"),
         ]
 

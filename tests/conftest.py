@@ -5,13 +5,14 @@ from pathlib import Path
 # Note, some of these are marked as FALSE instead of TRUE because the
 # information is hidden somewhere non-standard, e.g. described in prose
 
-# Intended Purpose, General Limitations, Computational Requirements
+# Intended Purpose, General Limitations, Computational Requirements, Evaluation
 expected_check_results = {
     "albert-base-v2": [True, True, False, True],
     "bert-base-cased": [True, True, False, True],
     "bert-base-multilingual-cased": [True, True, False, False],
     "bert-base-uncased": [True, True, False, True],
     "big-science___bloom": [True, True, True, True],
+    "big-science___t0pp": [True, True, False, True],
     "cl-tohoku___bert-base-japanese-whole-word-masking": [False, False, False, False],
     "distilbert-base-cased-distilled-squad": [True, True, True, True],
     "distilbert-base-uncased": [True, True, False, True],

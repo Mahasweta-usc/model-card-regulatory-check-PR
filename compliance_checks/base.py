@@ -21,7 +21,7 @@ def walk_to_next_heading(card, heading, heading_text) -> bool:
             return False
 
         while sibling and (not (sibling.name is not None and sibling.name in stop_at) or sibling.name is None):
-            if sibling.name == "p":
+            if sibling.name in ["p", "ul", "li"]:
                 content.append(sibling.text.strip())
             sibling = next(sibling_gen, None)
 
@@ -31,11 +31,11 @@ def walk_to_next_heading(card, heading, heading_text) -> bool:
             "Users (both direct and downstream) should be made aware of the risks, biases and limitations of the "
             "model. More information needed for further recommendations."
         ] for c in content]):
-            return False  # , None
+            return False
 
-        return True  # , content
+        return True
     except AttributeError:
-        return False  # , None
+        return False
 
 
 class ComplianceResult(ABC):

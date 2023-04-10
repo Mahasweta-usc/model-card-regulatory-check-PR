@@ -89,6 +89,14 @@ bloom = """\
 *This section identifies foreseeable harms and misunderstandings.*
 """
 
+t_zero = """\
+# Limitations
+
+- The models of the T0* series are quite large (3B or 11B parameters). Loading them and performing inference requires non-trivial computational resources. When using multiple GPUs, it is possible to use [.parallelize()](https://huggingface.co/transformers/parallelism.html).
+- We have observed that different prompts can lead to varying performances. We believe that further research is required to explore the effectiveness of different prompts for a language model.
+- Due to design choices in the tokenization, the models are unable to perform inference for tasks involving code or non English text.
+"""
+
 success_result = GeneralLimitationsResult(
     status=True
 )
@@ -103,6 +111,7 @@ success_result = GeneralLimitationsResult(
     runway,
     distilroberta_base,
     bloom,
+    t_zero,
 ])
 def test_run_checks(card):
     model_card_html = markdown.markdown(card)
