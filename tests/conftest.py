@@ -14,6 +14,7 @@ expected_check_results = {
     "big-science___bloom": [True, True, True, True],
     "big-science___t0pp": [True, True, False, True],
     "cl-tohoku___bert-base-japanese-whole-word-masking": [False, False, False, False],
+    "deepset___roberta-base-squad2": [False, False, False, True],
     "distilbert-base-cased-distilled-squad": [True, True, True, True],
     "distilbert-base-uncased": [True, True, False, True],
     "distilbert-base-uncased-finetuned-sst-2-english": [True, True, False, False],

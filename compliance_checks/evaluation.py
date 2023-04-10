@@ -84,6 +84,7 @@ class EvaluationCheck(ComplianceCheck):
             ("h2", "Benchmarks"),
             ("h2", "Results"),
             ("h1", "Evaluation data"),
+            ("h2", "Performance"),
         ]
 
         for hX, heading in combos:
