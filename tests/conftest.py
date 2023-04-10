@@ -19,6 +19,7 @@ expected_check_results = {
     "distilbert-base-uncased-finetuned-sst-2-english": [True, True, False, False],
     "distilroberta-base": [True, True, False, True],
     "emilyalsentzer___Bio_ClinicalBERT": [False, False, False, False],
+    "facebook___bart-large-cnn": [True, True, False, False],  # Evaluation scores are in the metadata, not card body.
     "facebook___bart-large-mnli": [False, False, False, False],
     "google___electra-base-discriminator": [False, False, False, False],
     "gpt2": [True, True, False, True],

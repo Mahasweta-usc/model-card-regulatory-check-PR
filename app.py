@@ -124,6 +124,7 @@ code {
         This tool should be treated as a Proof Of Concept, and is not designed for production-level use.
         - This is currently designed to only work on **English** model cards.
         - This tool relies on a very strict model card schema, which may be different from your model card.
+        - Only material in the main card body is considered – any data in the YAML frontmatter is disregarded. 
         - If your model card contains any HTML fragments, this tool might not be able to read your model card.
         """)
 
