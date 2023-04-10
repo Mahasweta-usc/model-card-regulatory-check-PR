@@ -81,6 +81,7 @@ class IntendedPurposeCheck(ComplianceCheck):
         combos = [
             ("h2", "Intended uses & limitations"),
             ("h1", "Uses"), ("h2", "Uses"),
+            ("h1", "Usage"),
             ("h2", "Model Use"),
             ("h1", "Intended uses"), ("h2", "Intended uses"),
             ("h2", "Intended Use"),

@@ -68,6 +68,7 @@ class GeneralLimitationsCheck(ComplianceCheck):
             ("h2", "Limitations and Bias"),
             ("h3", "Limitations and bias"),
             ("h1", "Limitations"), ("h2", "Limitations"),
+            ("h2", "Performance and Limitations"),
         ]
 
         for hX, heading in combos:

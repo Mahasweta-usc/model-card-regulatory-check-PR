@@ -27,6 +27,7 @@ expected_check_results = {
     "microsoft___layoutlmv3-base": [False, False, False, False],
     "openai___clip-vit-base-patch32": [True, True, False, False],
     "openai___clip-vit-large-patch14": [True, True, False, False],
+    "openai___whisper-large-v2": [True, True, False, True],
     "philschmid___bart-large-cnn-samsum": [False, False, False, True],
     "prajjwal1___bert-tiny": [False, False, False, False],
     "roberta-base": [True, True, False, True],
