@@ -104,19 +104,28 @@ code {
 """) as demo:
     gr.Markdown("""\
     # RegCheck AI
-    This Space matches information in [model cards](https://huggingface.co/docs/hub/model-cards) to proposed regulatory \
-    compliance descriptions in the [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206). \
-    This is a  **prototype** to explore the feasibility of automatic checks for compliance, \
-    and is limited to specific provisions of Article 13 of the Act, “Transparency and \
-    provision of information to users”. \
-    **This is research work and NOT a commercial or legal product**
-    
-    To check a model card, first load it by doing any one of the following:
-    - If the model is on the Hugging Face Hub, search for a model and select it from the results.
-    - If you have the model card on your computer as a Markdown file, select the "Upload your own card" tab and click \
-      "Upload a Markdown file".
-    - Paste your model card's text directly into the "Model Card" text area.
+    This Space matches information in [model cards](https://huggingface.co/docs/hub/model-cards) to proposed \
+    regulatory compliance descriptions in the \
+    [EU AI Act](https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex%3A52021PC0206).
+    This is a  **prototype** to explore the feasibility of automatic checks for compliance, and is limited to specific \
+    provisions of Article 13 of the Act, “Transparency and provision of information to users”. \
+    **Please note: this is research work and NOT a commercial or legal product.**
     """)
+    with gr.Accordion(label="Instructions", open=True):
+        gr.Markdown("""
+        To check a model card, first load it by doing any one of the following:
+        - If the model is on the Hugging Face Hub, search for a model and select it from the results.
+        - If you have the model card on your computer as a Markdown file, select the "Upload your own card" tab and \
+            click "Upload a Markdown file".
+        - Paste your model card's text directly into the "Model Card" text area.
+        """)
+    with gr.Accordion(label="Limitations", open=False):
+        gr.Markdown("""
+        This tool should be treated as a Proof Of Concept, and is not designed for production-level use.
+        - This is currently designed to only work on **English** model cards.
+        - This tool relies on a very strict model card schema, which may be different from your model card.
+        - If your model card contains any HTML fragments, this tool might not be able to read your model card.
+        """)
 
     with gr.Row():
         with gr.Column():
