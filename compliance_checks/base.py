@@ -14,7 +14,11 @@ def walk_to_next_heading(card, heading, heading_text) -> bool:
         content = []
 
         sibling_gen = heading_node.nextSiblingGenerator()
-        sibling = next(sibling_gen)
+
+        try:
+            sibling = next(sibling_gen)
+        except StopIteration:
+            return False
 
         while sibling and (not (sibling.name is not None and sibling.name in stop_at) or sibling.name is None):
             if sibling.name == "p":

@@ -98,6 +98,10 @@ bloom = """\
 This model is being created in order to enable public research on large language models (LLMs).
 """
 
+bleed_over = """\
+## Uses
+"""
+
 success_result = IntendedPurposeResult(
     status=True
 )
@@ -123,6 +127,13 @@ def test_run_checks(card):
 
 def test_fail_on_empty_template():
     model_card_html = markdown.markdown(empty_template)
+    card_soup = BeautifulSoup(model_card_html, features="html.parser")
+    results = IntendedPurposeCheck().run_check(card_soup)
+    assert results == IntendedPurposeResult()
+
+
+def test_fail_on_bleed_over():
+    model_card_html = markdown.markdown(bleed_over)
     card_soup = BeautifulSoup(model_card_html, features="html.parser")
     results = IntendedPurposeCheck().run_check(card_soup)
     assert results == IntendedPurposeResult()
