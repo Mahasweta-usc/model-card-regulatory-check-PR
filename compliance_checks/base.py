@@ -28,6 +28,7 @@ def walk_to_next_heading(card, heading, heading_text) -> bool:
         if all([c in [
             "[More Information Needed]",
             "More information needed.",
+            "More information needed",
             "Users (both direct and downstream) should be made aware of the risks, biases and limitations of the "
             "model. More information needed for further recommendations."
         ] for c in content]):
