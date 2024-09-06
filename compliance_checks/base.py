@@ -30,7 +30,8 @@ def walk_to_next_heading(card, heading, heading_text) -> bool:
             "More information needed.",
             "More information needed",
             "Users (both direct and downstream) should be made aware of the risks, biases and limitations of the "
-            "model. More information needed for further recommendations."
+            "model. More information needed for further recommendations.",
+            "Users (both direct and downstream) should be made aware of the risks, biases and limitations of the model. More information needed for further recommendations."
         ] for c in content]):
             return False
 
